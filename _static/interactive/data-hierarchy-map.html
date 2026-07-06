@@ -1,0 +1,611 @@
+<title>inZOI ModKit — карта данных</title>
+<style>
+  :root {
+    --bg: #eef0f3;
+    --surface: #ffffff;
+    --surface-2: #f5f6f8;
+    --border: #d8dce3;
+    --text: #1a1d23;
+    --text-dim: #5b6270;
+    --accent: #1f8a76;
+    --accent-strong: #146857;
+    --accent-soft: #dceee9;
+    --mono-tag-bg: #eef1f5;
+    --shadow: 0 1px 2px rgba(20, 24, 32, 0.04), 0 8px 24px rgba(20, 24, 32, 0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151a;
+      --surface: #1a1e25;
+      --surface-2: #20252d;
+      --border: #2c323d;
+      --text: #e6e9ee;
+      --text-dim: #8b93a3;
+      --accent: #4fd6b8;
+      --accent-strong: #2fae95;
+      --accent-soft: #16332d;
+      --mono-tag-bg: #232833;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12151a;
+    --surface: #1a1e25;
+    --surface-2: #20252d;
+    --border: #2c323d;
+    --text: #e6e9ee;
+    --text-dim: #8b93a3;
+    --accent: #4fd6b8;
+    --accent-strong: #2fae95;
+    --accent-soft: #16332d;
+    --mono-tag-bg: #232833;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #eef0f3;
+    --surface: #ffffff;
+    --surface-2: #f5f6f8;
+    --border: #d8dce3;
+    --text: #1a1d23;
+    --text-dim: #5b6270;
+    --accent: #1f8a76;
+    --accent-strong: #146857;
+    --accent-soft: #dceee9;
+    --mono-tag-bg: #eef1f5;
+    --shadow: 0 1px 2px rgba(20, 24, 32, 0.04), 0 8px 24px rgba(20, 24, 32, 0.05);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+  }
+
+  .wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+  }
+
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  header.page {
+    margin-bottom: 48px;
+  }
+  .eyebrow {
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-strong);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+  .lede {
+    font-size: 16.5px;
+    color: var(--text-dim);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  /* ---- Strata diagram ---- */
+  .strata {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin: 40px 0 8px;
+  }
+  .layer {
+    background: var(--surface);
+    padding: 26px 28px;
+    border-left: 4px solid var(--accent);
+    position: relative;
+  }
+  .layer + .layer {
+    border-top: 1px solid var(--border);
+  }
+  .layer-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .layer-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .layer-num {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    background: var(--mono-tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1px 7px;
+  }
+  .layer-title h2 {
+    font-size: 19px;
+    font-weight: 750;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .layer-count {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    color: var(--accent-strong);
+    white-space: nowrap;
+  }
+  .layer-desc {
+    color: var(--text-dim);
+    font-size: 14.5px;
+    max-width: 68ch;
+    margin: 0 0 14px;
+  }
+  .connector {
+    display: flex;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    padding: 2px 0;
+  }
+
+  /* chips */
+  .chiprow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .chip {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    background: var(--mono-tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .chip b {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+
+  details {
+    margin-top: 14px;
+    border-top: 1px dashed var(--border);
+    padding-top: 12px;
+  }
+  summary {
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--accent-strong);
+    list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: "▸ ";
+  }
+  details[open] summary::before {
+    content: "▾ ";
+  }
+  .detail-body {
+    margin-top: 12px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13.5px;
+  }
+  th, td {
+    text-align: left;
+    padding: 6px 10px 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    color: var(--text-dim);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  td.num, th.num {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    padding-right: 4px;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+  }
+
+  .cols2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 640px) {
+    .cols2 { grid-template-columns: 1fr; }
+  }
+
+  /* Section: worked example */
+  section.example {
+    margin-top: 56px;
+  }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .section-head h2 {
+    font-size: 21px;
+    font-weight: 780;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .section-sub {
+    color: var(--text-dim);
+    font-size: 14.5px;
+    margin: 0 0 20px;
+    max-width: 70ch;
+  }
+
+  .trace {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .trace-step {
+    background: var(--surface);
+    padding: 18px 22px;
+    display: grid;
+    grid-template-columns: 108px 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+  .trace-step + .trace-step {
+    border-top: 1px solid var(--border);
+  }
+  .trace-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-strong);
+    padding-top: 3px;
+  }
+  .trace-content code.mono {
+    background: var(--mono-tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-size: 13px;
+  }
+  .trace-content p {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
+  /* cheat sheet */
+  section.cheatsheet {
+    margin-top: 56px;
+  }
+  .cheat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 760px) {
+    .cheat-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 520px) {
+    .cheat-grid { grid-template-columns: 1fr; }
+  }
+  .cheat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .cheat-card h3 {
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    margin: 0 0 10px;
+    font-weight: 700;
+  }
+  .cheat-card ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .cheat-card code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    color: var(--text);
+  }
+
+  footer.note {
+    margin-top: 56px;
+    font-size: 13px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    padding-top: 18px;
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="page">
+    <div class="eyebrow">inZOI ModKit · карта данных</div>
+    <h1>Три слоя, из которых собран любой мод</h1>
+    <p class="lede">
+      ModKit хранит игровые данные в трёх независимых системах. Они не вложены друг в друга — это отдельные
+      хранилища, которые ссылаются друг на друга по строковым ID. Схема ниже построена по фактическому
+      состоянию редактора (project browser, книги, схемы Data Asset), а не по документации.
+    </p>
+  </header>
+
+  <div class="strata">
+
+    <div class="layer">
+      <div class="layer-head">
+        <div class="layer-title">
+          <span class="layer-num mono">01</span>
+          <h2>Books — предметы</h2>
+        </div>
+        <span class="layer-count">list_books · list_categories</span>
+      </div>
+      <p class="layer-desc">
+        Конкретные игровые сущности: мебель, одежда, причёски, анимации. У каждой книги (<code class="mono">book_id</code>,
+        например <code class="mono">Computer01</code>) есть blueprint с компонентами (меши, слоты, эффекты) и рабочая
+        область (workspace) — <b>Override</b> (заменяет ID вживую) или <b>Duplicate</b> (клонирует под новым ID).
+      </p>
+      <div class="chiprow">
+        <span class="chip">BUILD → <b>Furniture</b> и <b>Construct</b></span>
+        <span class="chip">CAZ → одежда/внешность</span>
+        <span class="chip">Hair · CHARACTER_ANIMATION · Script</span>
+      </div>
+      <details>
+        <summary>Категории BUILD и CAZ (то, что реально в редакторе)</summary>
+        <div class="detail-body cols2">
+          <div>
+            <div style="font-size:12.5px;color:var(--text-dim);font-weight:600;margin-bottom:6px;">BUILD — крупные группы (пример)</div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Категория</th><th>Группа</th><th class="num">Книг</th></tr></thead>
+                <tbody>
+                  <tr><td>HomeOffice_PC</td><td>Furniture</td><td class="num">5</td></tr>
+                  <tr><td>Light_Ceiling</td><td>Furniture</td><td class="num">82</td></tr>
+                  <tr><td>Kitchen_CookingUtensils</td><td>Furniture</td><td class="num">51</td></tr>
+                  <tr><td>Sofa</td><td>Furniture</td><td class="num">45</td></tr>
+                  <tr><td>Window</td><td>Construct</td><td class="num">65</td></tr>
+                  <tr><td>Door</td><td>Construct</td><td class="num">49</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12.5px;color:var(--text-dim);font-weight:600;margin-bottom:6px;">CAZ — категории одежды/внешности</div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Категория</th><th class="num">Книг</th></tr></thead>
+                <tbody>
+                  <tr><td>Hair</td><td class="num">487</td></tr>
+                  <tr><td>AttachedAccessory</td><td class="num">264</td></tr>
+                  <tr><td>Jacket</td><td class="num">266</td></tr>
+                  <tr><td>Top</td><td class="num">257</td></tr>
+                  <tr><td>Bottom</td><td class="num">204</td></tr>
+                  <tr><td>Shoes</td><td class="num">203</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="connector">▾ ссылается на строки по <span class="mono" style="margin:0 4px;">Id / Name</span> ▾</div>
+
+    <div class="layer">
+      <div class="layer-head">
+        <div class="layer-title">
+          <span class="layer-num mono">02</span>
+          <h2>Data Tables — построчные данные</h2>
+        </div>
+        <span class="layer-count">list_tables · list_table_rows · get_row · set_data</span>
+      </div>
+      <p class="layer-desc">
+        980 таблиц (<code class="mono">DT_*</code> внутри игры). Каждая — обычная строковая таблица с колонкой <code class="mono">Id</code>.
+        Мод либо <b>Override</b>-ит существующую строку, либо добавляет новую (Duplicate) через <code class="mono">set_data</code> /
+        <code class="mono">set_data_batch</code>. Самая крупная группа — <code class="mono">Script_*</code> (104 таблицы) — это игровая
+        логика конкретных систем (питомцы, отношения, события).
+      </p>
+      <details open>
+        <summary>Топ групп по префиксу имени таблицы (из 980)</summary>
+        <div class="detail-body">
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>Префикс</th><th class="num">Таблиц</th><th>Что это, как правило</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">Script_*</td><td class="num">104</td><td>Логика систем: Script_Interaction_Computer, Script_Farming, Script_Crime…</td></tr>
+                <tr><td class="mono">Condition_*</td><td class="num">75</td><td>Условия доступности интеракций/действий</td></tr>
+                <tr><td class="mono">InteractionBag_*</td><td class="num">57</td><td>Наборы (bag) интеракций — то, на что ссылается DA_Interaction</td></tr>
+                <tr><td class="mono">Action_*</td><td class="num">34</td><td>Атомарные игровые действия</td></tr>
+                <tr><td class="mono">Interaction_*</td><td class="num">33</td><td>Отдельные интеракции (не bag)</td></tr>
+                <tr><td class="mono">Object_*</td><td class="num">21</td><td>Свойства игровых объектов/предметов</td></tr>
+                <tr><td class="mono">Garment*</td><td class="num">~30</td><td>Меши и слоты одежды по типу (Top, Jacket, Shoes…)</td></tr>
+                <tr><td class="mono">Appearance*</td><td class="num">~25</td><td>Внешность персонажа (CAS): волосы, лицо, макияж</td></tr>
+                <tr><td class="mono">Buff_* / Modifier_*</td><td class="num">32</td><td>Баффы и модификаторы характеристик</td></tr>
+                <tr><td class="mono">Mission_*</td><td class="num">13</td><td>Квесты/миссии</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="connector">▾ читает ID-ссылки, задаёт глобальные параметры системы ▾</div>
+
+    <div class="layer">
+      <div class="layer-head">
+        <div class="layer-title">
+          <span class="layer-num mono">03</span>
+          <h2>Data Assets — глобальные конфиги</h2>
+        </div>
+        <span class="layer-count">list_data_asset_types · get_data_asset_schema/values · set_data_asset_fields</span>
+      </div>
+      <p class="layer-desc">
+        153 типа (<code class="mono">DA_*</code>, UClass вида <code class="mono">B1*DataAsset</code>). В отличие от таблиц — это
+        <b>не строки</b>, а один-единственный объект-синглтон на класс: глобальные настройки целой системы
+        (дистанции интеракций, тайминги автономии, ID заглушек-реакций). Через ModKit они открываются как
+        воркспейс с <code class="mono">book_class='DA'</code>.
+      </p>
+      <details>
+        <summary>153 типа сгруппированы по домену (примеры)</summary>
+        <div class="detail-body cols2">
+          <div>
+            <div style="font-size:12.5px;color:var(--text-dim);font-weight:600;margin-bottom:6px;">Персонаж и жизнь</div>
+            <div class="chiprow">
+              <span class="chip">DA_Ambition</span><span class="chip">DA_Aging</span><span class="chip">DA_Trait</span>
+              <span class="chip">DA_Relationship</span><span class="chip">DA_Career</span><span class="chip">DA_Skill</span>
+              <span class="chip">DA_Emotion</span><span class="chip">DA_CharacterAttribute</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12.5px;color:var(--text-dim);font-weight:600;margin-bottom:6px;">Город и мир</div>
+            <div class="chiprow">
+              <span class="chip">DA_CityEdit</span><span class="chip">DA_CityMove</span><span class="chip">DA_TrafficControl</span>
+              <span class="chip">DA_Weather</span><span class="chip">DA_Disaster</span><span class="chip">DA_Population</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12.5px;color:var(--text-dim);font-weight:600;margin-bottom:6px;">Объекты и взаимодействие</div>
+            <div class="chiprow">
+              <span class="chip">DA_Interaction</span><span class="chip">DA_ActiveInteraction</span><span class="chip">DA_BuildCommon</span>
+              <span class="chip">DA_Crafting</span><span class="chip">DA_Inventory</span><span class="chip">DA_Depreciation</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12.5px;color:var(--text-dim);font-weight:600;margin-bottom:6px;">UI и система</div>
+            <div class="chiprow">
+              <span class="chip">DA_Widget</span><span class="chip">DA_Popup</span><span class="chip">DA_LoadingScreen</span>
+              <span class="chip">DA_SaveLoad</span><span class="chip">DA_InputMappingContext</span><span class="chip">DA_Minimap</span>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+  </div>
+
+  <section class="example">
+    <div class="section-head">
+      <h2>Как это выглядит на живом примере</h2>
+    </div>
+    <p class="section-sub">
+      Трассировка из твоего же проекта <code class="mono">Change_PC_Role</code> — воркспейс
+      <code class="mono">Computer01_245248</code> проходит через все три слоя.
+    </p>
+    <div class="trace">
+      <div class="trace-step">
+        <div class="trace-label">01 · Book</div>
+        <div class="trace-content">
+          <code class="mono">Computer01</code> (категория <span class="mono">HomeOffice_PC</span>, группа Furniture)
+          <p>Blueprint содержит <code class="mono">InteractionSlot</code>, <code class="mono">InteractionSlot_Cleaning</code>,
+          <code class="mono">FxSlot_Broken</code> — слоты, которые в рантайме дергают конкретные интеракции.</p>
+        </div>
+      </div>
+      <div class="trace-step">
+        <div class="trace-label">02 · Data Table</div>
+        <div class="trace-content">
+          <code class="mono">Script_Interaction_Computer</code> (18 строк) + <code class="mono">DT_InteractionBag</code>
+          <p>Строки описывают конкретные действия на компьютере (что доступно, при каких условиях) и группируют их в bag'и,
+          на которые ссылается ID вроде <span class="mono">AutonomyFailedInteractionBagId</span>.</p>
+        </div>
+      </div>
+      <div class="trace-step">
+        <div class="trace-label">03 · Data Asset</div>
+        <div class="trace-content">
+          <code class="mono">DA_Interaction</code> — глобальные тайминги и радиусы, ОДИН на всю игру
+          <p><span class="mono">MaxInteractionRange</span>, <span class="mono">AutonomyIntervalMin/Max</span>,
+          <span class="mono">ClickableObjectInteractionRange</span> — эти значения действуют на все объекты игры разом,
+          Computer01 их не переопределяет, а просто наследует.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cheatsheet">
+    <div class="section-head">
+      <h2>Шпаргалка по инструментам</h2>
+    </div>
+    <p class="section-sub">Какой вызов ModKit относится к какому слою.</p>
+    <div class="cheat-grid">
+      <div class="cheat-card">
+        <h3>Books</h3>
+        <ul>
+          <li><code>modkit_list_categories</code></li>
+          <li><code>modkit_list_books</code></li>
+          <li><code>modkit_add_workspace</code></li>
+          <li><code>modkit_list_components</code></li>
+        </ul>
+      </div>
+      <div class="cheat-card">
+        <h3>Data Tables</h3>
+        <ul>
+          <li><code>modkit_list_tables</code></li>
+          <li><code>modkit_list_table_rows</code></li>
+          <li><code>modkit_get_row</code> / <code>get_row_batch</code></li>
+          <li><code>modkit_set_data</code> / <code>set_data_batch</code></li>
+        </ul>
+      </div>
+      <div class="cheat-card">
+        <h3>Data Assets</h3>
+        <ul>
+          <li><code>modkit_list_data_asset_types</code></li>
+          <li><code>modkit_get_data_asset_schema</code></li>
+          <li><code>modkit_get_data_asset_values</code></li>
+          <li><code>modkit_set_data_asset_fields</code></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="note">
+    Собрано вживую из подключённого ModKit MCP-сервера: 153 типа Data Asset, 980 Data Tables, категории BUILD/CAZ
+    и схема <span class="mono">DA_Interaction</span> — не документация, а фактический снимок редактора на момент запроса.
+  </footer>
+
+</div>
