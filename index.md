@@ -33,3 +33,10 @@ case-studies/data-hierarchy
 case-studies/change-pc-role
 case-studies/toilet-money
 ```
+
+```{toctree}
+:maxdepth: 1
+:caption: Прочее
+
+roadmap
+```
