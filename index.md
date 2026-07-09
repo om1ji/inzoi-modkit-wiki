@@ -12,9 +12,9 @@
 architecture/00-overview
 architecture/01-project-workspace
 architecture/02-books-objects
+architecture/02a-object-template
 architecture/03-blueprint-components
 architecture/04-assets-pipeline
-architecture/05-interaction-pipeline
 architecture/06-data-assets
 architecture/07-data-tables
 architecture/08-business-career-site
@@ -27,9 +27,28 @@ architecture/13-gotchas
 
 ```{toctree}
 :maxdepth: 2
+:caption: Действия
+
+architecture/02b-object-selection-set
+architecture/05-interaction-pipeline
+architecture/05a-interaction-bag
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Правила
+
+architecture/05b-conditions
+architecture/05c-autonomy-frequency
+architecture/05d-aging-condition-flags
+```
+
+```{toctree}
+:maxdepth: 2
 :caption: Разборы примеров
 
 case-studies/data-hierarchy
+case-studies/interaction-layers
 case-studies/change-pc-role
 case-studies/toilet-money
 ```

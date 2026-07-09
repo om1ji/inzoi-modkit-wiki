@@ -6,6 +6,11 @@
 InteractionBag (пункт меню) → Interaction (обёртка + фильтр цели) → Action (анимации + скрипты)
 ```
 
+```{seealso}
+Подробный разбор самого «мешка» — все поля `InteractionBag` по смыслу и контраст простого/сложного
+пункта — в {doc}`05a-interaction-bag`.
+```
+
 Условия (`Condition_*` таблицы) — универсальный движок: каждая строка — список
 `AndConditionsList`/`OrConditionsList`, а внутри — `{BaseObject, Command, CompareType, S1, S2, F1,
 F2}`. `Command` — это словарь встроенных проверок (не таблица, а фиксированный набор нативных

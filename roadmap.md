@@ -5,15 +5,15 @@
 - [ ] **Туториал: как добавить новое действие на объект** — обобщённый пошаговый гайд (не привязанный
   к конкретному предмету вроде туалета), с шаблоном под любой объект: найти `InteractionBag` через
   `ObjectSelectionSet`, решить точку подключения скрипта, создать `Script_Interaction`-строку,
-  подключить. Черновик уже есть в {doc}`case-studies/toilet-money`, but нужно обобщить.
-- [ ] **Что такое InteractionBag** — отдельная концептуальная страница-объяснение (сейчас это
-  подраздел {doc}`architecture/05-interaction-pipeline` и разбор конкретного примера в
-  {doc}`case-studies/toilet-money` — нужно вынести общее объяснение в отдельную, самостоятельную
-  страницу).
+  подключить. Частично покрыто интерактивной схемой в {doc}`case-studies/interaction-layers`, но
+  отдельной пошаговой страницы-туториала пока нет.
+- [x] **Что такое InteractionBag** — вынесено в отдельную страницу {doc}`architecture/05a-interaction-bag`
+  (поля по смыслу, контраст простого `Toilet01_Use` и сложного `Computer_Use`).
+- [x] **Словарь `Command` и движок условий** — вынесено в {doc}`architecture/05b-conditions`
+  (`AndConditionsList`/`OrConditionsList`, реальные команды `HasObjectTag`/`Buff`/`Stat`/`EmotionLevel`…).
 - [ ] **Как добавлять новые Interaction и Script_Interaction строки** — отдельно от InteractionBag:
-  подробнее про сам формат `Interaction`/`Action` (не только `InteractionBag`), про структуру
-  `Script_Interaction.Scripts[].Executes[]` и доступный словарь `Command` (сейчас частично покрыто
-  в {doc}`architecture/05-interaction-pipeline`, но не как отдельный how-to).
+  подробнее про сам формат `Interaction`/`Action` (не только `InteractionBag`) и про структуру
+  `Script_Interaction.Scripts[].Executes[]` — как отдельный how-to.
 
 ## Известные открытые вопросы (не забыть)
 

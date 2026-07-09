@@ -1,0 +1,349 @@
+<title>inZOI ModKit — слои интеракции (Toilet01)</title>
+<style>
+  :root {
+    --bg: #eef0f3; --surface: #ffffff; --surface-2: #f5f6f8; --border: #d8dce3;
+    --text: #1a1d23; --text-dim: #5b6270; --accent: #1f8a76; --accent-strong: #146857;
+    --accent-soft: #dceee9; --draft: #b8720f; --draft-strong: #8a5608; --draft-soft: #f7e6cd;
+    --mono-tag-bg: #eef1f5; --edge: #aab1bd; --edge-draft: #d9a25a;
+    --shadow: 0 1px 2px rgba(20,24,32,.05), 0 8px 20px rgba(20,24,32,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151a; --surface: #1a1e25; --surface-2: #20252d; --border: #2c323d;
+      --text: #e6e9ee; --text-dim: #8b93a3; --accent: #4fd6b8; --accent-strong: #2fae95;
+      --accent-soft: #16332d; --draft: #e3a44e; --draft-strong: #f0b86a; --draft-soft: #3a2c14;
+      --mono-tag-bg: #232833; --edge: #444c5a; --edge-draft: #8a6a34;
+      --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 20px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12151a; --surface: #1a1e25; --surface-2: #20252d; --border: #2c323d;
+    --text: #e6e9ee; --text-dim: #8b93a3; --accent: #4fd6b8; --accent-strong: #2fae95;
+    --accent-soft: #16332d; --draft: #e3a44e; --draft-strong: #f0b86a; --draft-soft: #3a2c14;
+    --mono-tag-bg: #232833; --edge: #444c5a; --edge-draft: #8a6a34;
+    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 20px rgba(0,0,0,.4);
+  }
+  :root[data-theme="light"] {
+    --bg: #eef0f3; --surface: #ffffff; --surface-2: #f5f6f8; --border: #d8dce3;
+    --text: #1a1d23; --text-dim: #5b6270; --accent: #1f8a76; --accent-strong: #146857;
+    --accent-soft: #dceee9; --draft: #b8720f; --draft-strong: #8a5608; --draft-soft: #f7e6cd;
+    --mono-tag-bg: #eef1f5; --edge: #aab1bd; --edge-draft: #d9a25a;
+    --shadow: 0 1px 2px rgba(20,24,32,.05), 0 8px 20px rgba(20,24,32,.06);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.45;
+  }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  header.page { margin-bottom: 22px; }
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--accent-strong); margin-bottom: 10px;
+  }
+  h1 { font-size: clamp(22px, 3vw, 30px); font-weight: 800; letter-spacing: -.01em; margin: 0 0 10px; text-wrap: balance; }
+  .lede { font-size: 15px; color: var(--text-dim); max-width: 78ch; margin: 0 0 6px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin: 18px 0 22px; font-size: 12.5px; color: var(--text-dim); }
+  .legend-item { display: flex; align-items: center; gap: 7px; }
+  .legend-swatch { width: 26px; height: 0; border-top: 2px solid var(--edge); }
+  .legend-swatch.draft { border-top: 2px dashed var(--edge-draft); }
+  .legend-box { width: 13px; height: 13px; border-radius: 3px; border: 1.5px solid var(--accent); background: var(--surface); }
+  .legend-box.draft { border: 1.5px dashed var(--draft); background: var(--draft-soft); }
+
+  .board-shell { display: grid; grid-template-columns: 1fr 300px; gap: 16px; align-items: start; }
+  @media (max-width: 880px) { .board-shell { grid-template-columns: 1fr; } }
+
+  #board {
+    position: relative; background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 16px; box-shadow: var(--shadow); overflow: auto; min-height: 640px;
+  }
+  #canvas-inner { position: relative; width: 880px; height: 1120px; }
+  #edges { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+  .layer-band {
+    position: absolute; left: 0; right: 0; height: 145px;
+    border-top: 1px dashed var(--border);
+  }
+  .layer-band.pipeline { background: linear-gradient(90deg, rgba(31,138,118,.05), transparent 60%); }
+  .layer-band .band-label {
+    position: absolute; left: 12px; top: 8px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--text-dim); opacity: .8;
+  }
+  .layer-band .band-num {
+    display: inline-block; background: var(--accent-soft); color: var(--accent-strong);
+    border-radius: 5px; padding: 0 5px; margin-right: 6px; font-size: 10px;
+  }
+
+  .node {
+    position: absolute; width: 176px; background: var(--surface);
+    border: 1.5px solid var(--accent); border-radius: 10px; padding: 9px 11px;
+    cursor: pointer; box-shadow: var(--shadow);
+    transition: transform .12s ease, box-shadow .12s ease; user-select: none;
+  }
+  .node:hover { transform: translateY(-2px); }
+  .node.selected { outline: 2.5px solid var(--accent-strong); outline-offset: 1px; }
+  .node.draft { border: 1.5px dashed var(--draft); background: var(--draft-soft); }
+  .node .type-tag {
+    font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--accent-strong); margin-bottom: 4px; display: flex; align-items: center; gap: 5px;
+  }
+  .node.draft .type-tag { color: var(--draft-strong); }
+  .node .type-tag .draft-chip {
+    background: var(--draft); color: var(--surface); border-radius: 4px; padding: 0 4px;
+    font-size: 8.5px; letter-spacing: .04em;
+  }
+  .node .node-title {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11.5px; font-weight: 600; word-break: break-word;
+  }
+  .node .node-sub { font-size: 10.5px; color: var(--text-dim); margin-top: 3px; }
+
+  #inspector {
+    position: sticky; top: 20px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; box-shadow: var(--shadow); padding: 18px 18px 20px;
+    max-height: 740px; overflow-y: auto;
+  }
+  #inspector h3 { margin: 0 0 4px; font-size: 15px; font-weight: 750; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; word-break: break-word; }
+  #inspector .insp-type { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-strong); margin-bottom: 12px; }
+  #inspector.is-draft .insp-type { color: var(--draft-strong); }
+  #inspector .insp-desc { font-size: 13px; color: var(--text-dim); margin: 0 0 14px; }
+  #inspector pre {
+    background: var(--mono-tag-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px; font-size: 11.5px; overflow-x: auto; margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  #inspector .empty { font-size: 13.5px; color: var(--text-dim); }
+  #inspector .verified-pill, #inspector .draft-pill {
+    display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
+    padding: 2px 8px; border-radius: 999px; margin-bottom: 12px;
+  }
+  #inspector .verified-pill { background: var(--accent-soft); color: var(--accent-strong); }
+  #inspector .draft-pill { background: var(--draft-soft); color: var(--draft-strong); }
+
+  footer.note { margin-top: 28px; font-size: 12.5px; color: var(--text-dim); border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+
+<div class="wrap">
+  <header class="page">
+    <div class="eyebrow">inZOI ModKit · слои интеракции</div>
+    <h1>От предмета до эффекта: 7 слоёв одного пункта меню (Toilet01)</h1>
+    <p class="lede">
+      Живой пример унитаза <span class="mono">Toilet01</span>. Верхние два слоя (0–1) — как предмет
+      доходит до своего реестра меню; слои 2–6 — сам конвейер интеракции. Сплошные узлы вытащены из
+      редактора через MCP, пунктирные (<span class="mono">«черновик»</span>) — новый третий пункт
+      «+50 Mew». Обрати внимание на слой 6: скрипт-эффект подключается в <b>двух независимых точках</b> —
+      ваниль вешает <span class="mono">Water_Usage_10</span> на уровне Action (шаг), а наши деньги проще
+      повесить на уровне InteractionBag (весь пункт). Клик по узлу показывает его реальные поля.
+    </p>
+  </header>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-box"></span> подтверждено в редакторе (MCP)</div>
+    <div class="legend-item"><span class="legend-box draft"></span> черновик третьего действия</div>
+    <div class="legend-item"><span class="legend-swatch"></span> прямая ссылка (поле → ID)</div>
+    <div class="legend-item"><span class="legend-swatch draft"></span> связь, которую нужно дописать</div>
+  </div>
+
+  <div class="board-shell">
+    <div id="board">
+      <div id="canvas-inner">
+        <svg id="edges"></svg>
+
+        <div class="layer-band" style="top:20px;">
+          <span class="band-label"><span class="band-num">0</span>Object — предмет (цена, теги, налог)</span>
+        </div>
+        <div class="layer-band" style="top:165px;">
+          <span class="band-label"><span class="band-num">1</span>ObjectTemplate — сцена/шаблон → указывает на реестр меню</span>
+        </div>
+        <div class="layer-band pipeline" style="top:310px;">
+          <span class="band-label"><span class="band-num">2</span>ObjectSelectionSet — реестр меню по состояниям</span>
+        </div>
+        <div class="layer-band pipeline" style="top:455px;">
+          <span class="band-label"><span class="band-num">3</span>InteractionBag — сам пункт меню (+ точка подключения скрипта №1)</span>
+        </div>
+        <div class="layer-band pipeline" style="top:600px;">
+          <span class="band-label"><span class="band-num">4</span>Interaction — фильтр цели, слоты, ссылка на Action</span>
+        </div>
+        <div class="layer-band pipeline" style="top:745px;">
+          <span class="band-label"><span class="band-num">5</span>Action_Interaction — анимация (+ точка подключения скрипта №2)</span>
+        </div>
+        <div class="layer-band pipeline" style="top:890px;">
+          <span class="band-label"><span class="band-num">6</span>Script_Interaction — эффект (Water_Usage / AddCurrency)</span>
+        </div>
+
+        <!-- nodes injected by JS -->
+      </div>
+    </div>
+
+    <div id="inspector">
+      <div class="empty">Нажми на узел, чтобы увидеть его реальные (или предложенные) поля.</div>
+    </div>
+  </div>
+
+  <footer class="note">
+    Данные слоёв 0–6 собраны напрямую из подключённого ModKit MCP-сервера
+    (<span class="mono">Object / ObjectTemplate.Toilet01_Template / ObjectSelectionSet.Toilet01 / InteractionBag · Interaction · Action_Interaction.Toilet01_Use_Flush</span>,
+    ванильный скрипт <span class="mono">Water_Usage_10</span>).
+    Пунктирная цепочка <span class="mono">Toilet01_Bonus</span> — предложение мода, ещё не записана в игру.
+    Все правки делаются вручную в редакторе ModKit, не через <span class="mono">set_data</span> (стрингификация массивов).
+  </footer>
+</div>
+
+<script>
+(function () {
+  const nodes = [
+    // Layer 0 — Object
+    { id: "object", type: "OBJECT", title: "Object.Toilet01", sub: "предмет, книга Toilet01", x: 300, y: 46, draft: false,
+      desc: "Это «паспорт» предмета — строка, в которой лежат его общие свойства: сколько стоит (Price: 150), к какой категории фильтра он относится в каталоге (FilterCategory: 'Toilet'), какие у него теги (ObjectTags), какой налог капает за использование (TaxId: 'Water'). Сам по себе Object не знает ничего про меню и действия — за это отвечают слои ниже. Связь с ними одна-единственная: поле ObjectTemplateId. Оно хранит ID следующей строки (Toilet01_Template) и говорит движку «а вот как этот предмет выглядит и ведёт себя на сцене — смотри туда».",
+      data: { FilterCategory: "Toilet", ObjectTags: ["Toilet"], ObjectTemplateId: "Toilet01_Template", TaxId: "Water", Price: 150 } },
+
+    // Layer 1 — ObjectTemplate
+    { id: "template", type: "OBJECTTEMPLATE", title: "ObjectTemplate.Toilet01_Template", sub: "шаблон на сцене", x: 300, y: 191, draft: false,
+      desc: "Шаблон описывает предмет как объект в 3D-мире: поле Asset указывает на его blueprint-актор (BP_Toilet01_Template — меши, слоты, физика), IsWettable говорит, что он может намокать, OwnershipCategory отвечает за систему личной собственности (здесь 'None' — унитаз ничей). Но для нашей задачи важно ровно одно поле — ObjectSelectionSetId. Оно снова хранит ID (Toilet01) и связывает шаблон с реестром меню на слое 2. То есть цепочка «какие действия доступны» начинается не с предмета напрямую, а протянута через шаблон: Object → ObjectTemplate → ObjectSelectionSet.",
+      data: { Asset: "…/BP_Toilet01_Template", ObjectSelectionSetId: "Toilet01", OwnershipCategory: "None", IsWettable: true, ObjectTags: ["Toilet_Check"] } },
+
+    // Layer 2 — ObjectSelectionSet
+    { id: "osset", type: "OBJECTSELECTIONSET", title: "ObjectSelectionSet.Toilet01", sub: "группа состояния «Use»", x: 300, y: 336, draft: false,
+      desc: "Вот здесь наконец решается, ЧТО игрок может сделать с предметом. Строка разбита на группы по состоянию объекта (StateGroupId): «Normal» — обычное, «Use» — когда им пользуются, «Broken» — сломан. Внутри каждой группы лежит массив InteractionBagList — это буквально список ID пунктов меню, доступных в этом состоянии. В группе «Use» сейчас два ID: Toilet01_Use и Toilet01_Use_Flush — те самые «Использовать» и «Слить воду». Каждый из этих ID ведёт вниз, на слой 3, к своей строке InteractionBag. Чтобы добавить третий пункт, достаточно дописать в этот массив ещё один ID (Toilet01_Bonus) — но сама строка с таким ID должна существовать на слое ниже, иначе ссылка будет висеть в пустоту.",
+      data: { StateGroupId: "Use", InteractionBagList: ["Toilet01_Use", "Toilet01_Use_Flush", "→ Toilet01_Bonus (дописать)"] } },
+
+    // Layer 3 — InteractionBag
+    { id: "bag_use", type: "INTERACTIONBAG", title: "InteractionBag.Toilet01_Use", sub: "«Использовать»", x: 24, y: 481, draft: false,
+      desc: "Первый из двух существующих пунктов меню — «Использовать». Здесь живёт вся «начинка» действия: какая награда даётся (InteractionRewards: восстановление мотива «Туалет» +15), как ветвится сценарий (InteractionSequence: обычно / с телефоном / редкая поломка), и какие скрипты дёргаются по завершении (FinishScriptIds). Именно к этому полю FinishScriptIds в прошлом моде (Toilet Money) подвесили начисление денег — но там деньги цепляли к уже существующему пункту. Мы же делаем отдельный, третий пункт, поэтому эту строку не трогаем, а берём за образец соседнюю — более простую Toilet01_Use_Flush.",
+      data: { InteractionRewards: "Toilet +15", FinishScriptIds: ["Object_Finish_Toilet_VeryLow"], InteractionSequence: "Breakable_Water / Toilet_Phone / Break" } },
+    { id: "bag_flush", type: "INTERACTIONBAG", title: "InteractionBag.Toilet01_Use_Flush", sub: "«Слить воду» — шаблон", x: 300, y: 481, draft: false,
+      desc: "Второй пункт — «Слить воду», и он идеальный шаблон для копирования, потому что устроен максимально просто: без условий доступа, без наград. Обрати внимание, как он связан со слоем ниже: внутри InteractionSequence лежит поле InteractionId со значением 'Toilet01_Use_Flush' — это ссылка на строку Interaction (слой 4) с таким же именем. То есть пункт меню не выполняет действие сам — он лишь указывает, какую Interaction запустить. Ещё здесь есть DisplayInfo.DisplayTextId — ссылка уже не на другую таблицу, а в систему локализации, откуда берётся видимый игроку текст названия. Именно эту строку мы продублируем под новый ID.",
+      data: { PostureGroupId: "StandGroup", InteractionSequence: [{ Id: "Breakable_Water", InteractionId: "Toilet01_Use_Flush" }, { Id: "Break", InteractionId: "Toilet01_Use_Broken" }], FinishScriptIds: [], DisplayInfo: { DisplayTextId: "…Toilet01_Use_Flush_DisplayTextId" } } },
+    { id: "bag_bonus", type: "INTERACTIONBAG", title: "InteractionBag.Toilet01_Bonus", sub: "«Забрать бонус» +50 Mew", x: 576, y: 481, draft: true,
+      desc: "Наш новый, третий пункт меню — копия Toilet01_Use_Flush, у которой мы поменяли всего несколько полей. Во-первых, свой Id (Toilet01_Bonus) — по нему на него ссылается реестр меню сверху. Во-вторых, внутри InteractionSequence поле InteractionId теперь указывает на нашу новую Interaction (Toilet01_Bonus), а не на flush. В-третьих, свой DisplayTextId — чтобы в меню было своё название. И самое главное — поле FinishScriptIds, куда мы вписываем ['AddCurrency_Toilet_Bonus']. Это и есть «точка подключения №1»: скрипт, привязанный сюда, срабатывает один раз, когда всё действие целиком завершилось. Для начисления денег это самый удобный уровень — не нужно возиться с отдельной анимацией.",
+      data: { InteractionSequence: [{ Id: "Breakable_Water", InteractionId: "Toilet01_Bonus" }], FinishScriptIds: ["AddCurrency_Toilet_Bonus"], DisplayInfo: { DisplayTextId: "…Toilet01_Bonus_DisplayTextId" } } },
+
+    // Layer 4 — Interaction
+    { id: "int_flush", type: "INTERACTION", title: "Interaction.Toilet01_Use_Flush", sub: "обёртка действия", x: 300, y: 626, draft: false,
+      desc: "Interaction — это «обёртка» между пунктом меню и физическим действием. Она отвечает за подготовку: к какому слоту предмета персонаж должен подойти (EnableSlotTags: ['Main']), как занимается слот (InteractionSlotUsage: 'Single'), есть ли фильтр цели. А связь дальше вниз — через массив ActionIdList: ['MoveRotate', 'Toilet01_Use_Flush']. Игра выполнит эти Action'ы по порядку: сначала MoveRotate (повернуться/подойти), потом основное действие Toilet01_Use_Flush — строку на слое 5 с таким же именем. То есть один пункт меню может разворачиваться в несколько последовательных действий, и именно ActionIdList задаёт этот порядок.",
+      data: { EnableSlotTags: ["Main"], InteractionSlotUsage: "Single", ActionIdList: ["MoveRotate", "Toilet01_Use_Flush"] } },
+    { id: "int_bonus", type: "INTERACTION", title: "Interaction.Toilet01_Bonus", sub: "обёртка (копия)", x: 576, y: 626, draft: true,
+      desc: "Копия обёртки под наш пункт. Слоты оставляем те же (Main), а вот ActionIdList меняем так, чтобы он указывал на наш новый Action Toilet01_Bonus. Тут есть развилка: если тебе не нужна отдельная анимация, эту строку и следующую (Action) можно вообще не создавать — достаточно в ActionIdList оставить существующий 'Toilet01_Use_Flush', и персонаж будет проигрывать ту же анимацию слива. Мы делаем свою копию только ради чистоты и на случай, если позже захочется прицепить эффект к конкретному шагу (точка №2).",
+      data: { EnableSlotTags: ["Main"], ActionIdList: ["MoveRotate", "Toilet01_Bonus"] } },
+
+    // Layer 5 — Action
+    { id: "act_flush", type: "ACTION", title: "Action_Interaction.Toilet01_Use_Flush", sub: "PlayAnim + скрипт шага", x: 300, y: 771, draft: false,
+      desc: "Самый нижний слой действия — здесь описано, что физически происходит. Внутри массива Actions лежит команда PlayAnim с параметром S1: 'Use_Toilet_Flush' — это имя анимационного монтажа, который проиграет персонаж. А теперь важное: у этого же шага есть своё поле FinishScriptIdList: ['Water_Usage_10']. Это «точка подключения №2» — скрипт, привязанный не ко всему пункту меню, а именно к завершению ЭТОЙ конкретной анимации. Ваниль пользуется этим, чтобы списать воду ровно в момент слива. То есть скрипты-эффекты можно вешать на двух разных уровнях, и это два независимых механизма (сравни с полем FinishScriptIds у InteractionBag на слое 3).",
+      data: { Actions: [{ Command: "PlayAnim", S1: "Use_Toilet_Flush", F1: 3, FinishScriptIdList: ["Water_Usage_10"], TickScriptIdList: ["Tick_Fun_1"] }] } },
+    { id: "act_bonus", type: "ACTION", title: "Action_Interaction.Toilet01_Bonus", sub: "переиспользует анимацию", x: 576, y: 771, draft: true,
+      desc: "Наш Action, если мы решили делать свой. Он проигрывает ту же анимацию Use_Toilet_Flush (незачем изобретать новую). Собственный Action имеет смысл в двух случаях: либо ты хочешь другую анимацию, либо хочешь, чтобы деньги начислялись не по завершении всего пункта (точка №1), а строго в конце этой анимации — тогда ['AddCurrency_Toilet_Bonus'] вписывается сюда, в FinishScriptIdList, вместо поля у InteractionBag. Для простого «+50 после смыва» разница незаметна, поэтому в основном варианте мы этот слой не трогаем.",
+      data: { Actions: [{ Command: "PlayAnim", S1: "Use_Toilet_Flush", F1: 3 }] } },
+
+    // Layer 6 — Script
+    { id: "script_water", type: "SCRIPT", title: "Script_Interaction.Water_Usage_10", sub: "ваниль: точка №2 (Action)", x: 300, y: 916, draft: false,
+      desc: "Реальный ванильный скрипт-эффект: он списывает воду. Важно, ОТКУДА он вызывается — не из пункта меню, а из поля FinishScriptIdList внутри Action.Toilet01_Use_Flush (слой 5). Это живое доказательство, что «точка подключения №2» — не теория: игра действительно вешает эффекты на уровне отдельного шага. Сама строка скрипта устроена так же, как наша денежная: блок команд, которые движок выполняет, когда шаг завершился.",
+      data: { attachedAt: "Action_Interaction.Toilet01_Use_Flush.Actions[0].FinishScriptIdList", note: "эффект привязан к конкретному шагу/анимации" } },
+    { id: "script_bonus", type: "SCRIPT", title: "Script_Interaction.AddCurrency_Toilet_Bonus", sub: "мод: точка №1 (InteractionBag)", x: 576, y: 916, draft: true,
+      desc: "Единственная по-настоящему новая логика во всём моде. Внутри — блок If без условий (значит, срабатывает всегда), а в нём команда AddCurrency: S1 задаёт валюту ('Mew' — основная игровая), F1 — сумму, причём знак F1 задаёт направление: +50 начислит, -50 спишет. Prob: 1 — вероятность срабатывания 100%. Эта строка не знает, откуда её позвали — её «подтягивает» поле FinishScriptIds у нашего InteractionBag (точка №1) на слое 3. Именно этот приём (AddCurrency в Script_Interaction, подключённый через FinishScriptIds) уже был проверен в прошлом моде — деньги реально приходят в игре.",
+      data: { Scripts: [{ IfType: "If", Conditions: [], Executes: [{ BaseObject: "Self", Command: "AddCurrency", S1: "Mew", F1: 50, Prob: 1 }] }] } }
+  ];
+
+  const edges = [
+    { from: "object", to: "template", label: "ObjectTemplateId", style: "solid" },
+    { from: "template", to: "osset", label: "ObjectSelectionSetId", style: "solid" },
+
+    { from: "osset", to: "bag_use", label: "InteractionBagList", style: "solid" },
+    { from: "osset", to: "bag_flush", label: "InteractionBagList", style: "solid" },
+    { from: "osset", to: "bag_bonus", label: "InteractionBagList (дописать)", style: "draft" },
+
+    { from: "bag_flush", to: "int_flush", label: "InteractionSequence[].InteractionId", style: "solid" },
+    { from: "int_flush", to: "act_flush", label: "ActionIdList", style: "solid" },
+    { from: "act_flush", to: "script_water", label: "FinishScriptIdList · точка №2", style: "solid" },
+
+    { from: "bag_bonus", to: "int_bonus", label: "InteractionSequence[].InteractionId", style: "draft" },
+    { from: "int_bonus", to: "act_bonus", label: "ActionIdList", style: "draft" },
+    { from: "bag_bonus", to: "script_bonus", label: "FinishScriptIds · точка №1", style: "draft" }
+  ];
+
+  const inner = document.getElementById("canvas-inner");
+  const svg = document.getElementById("edges");
+  const inspector = document.getElementById("inspector");
+  const nodeEls = {};
+
+  nodes.forEach(n => {
+    const el = document.createElement("div");
+    el.className = "node" + (n.draft ? " draft" : "");
+    el.style.left = n.x + "px";
+    el.style.top = n.y + "px";
+    el.dataset.id = n.id;
+    el.innerHTML =
+      '<div class="type-tag">' + n.type + (n.draft ? ' <span class="draft-chip">черновик</span>' : '') + '</div>' +
+      '<div class="node-title">' + n.title + '</div>' +
+      (n.sub ? '<div class="node-sub">' + n.sub + '</div>' : '');
+    el.addEventListener("click", () => selectNode(n.id));
+    inner.appendChild(el);
+    nodeEls[n.id] = el;
+  });
+
+  function centerOf(el) {
+    return { x: el.offsetLeft + el.offsetWidth / 2, y: el.offsetTop + el.offsetHeight / 2,
+      top: el.offsetTop, bottom: el.offsetTop + el.offsetHeight };
+  }
+  function edgeColor(style) { return style === "draft" ? "var(--edge-draft)" : "var(--edge)"; }
+  function edgeDash(style) { return style === "draft" ? "5,4" : "none"; }
+
+  function drawEdges() {
+    svg.setAttribute("width", inner.offsetWidth);
+    svg.setAttribute("height", inner.offsetHeight);
+    svg.innerHTML =
+      '<defs><marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">' +
+      '<path d="M0,0 L8,4 L0,8 z" fill="context-stroke"/></marker></defs>';
+
+    edges.forEach(e => {
+      const a = centerOf(nodeEls[e.from]);
+      const b = centerOf(nodeEls[e.to]);
+      const x1 = a.x, y1 = a.bottom, x2 = b.x, y2 = b.top;
+      const my = (y1 + y2) / 2;
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      const d = "M " + x1 + " " + y1 + " C " + x1 + " " + my + " " + x2 + " " + my + " " + x2 + " " + y2;
+      path.setAttribute("d", d);
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", edgeColor(e.style));
+      path.setAttribute("stroke-width", e.style === "draft" ? "1.6" : "1.8");
+      path.setAttribute("stroke-dasharray", edgeDash(e.style));
+      path.setAttribute("marker-end", "url(#arrow)");
+      path.setAttribute("opacity", "0.85");
+      svg.appendChild(path);
+
+      const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      label.setAttribute("x", (x1 + x2) / 2 + 6);
+      label.setAttribute("y", my - 2);
+      label.setAttribute("font-size", "9.5");
+      label.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace");
+      label.setAttribute("fill", "var(--text-dim)");
+      label.setAttribute("text-anchor", "middle");
+      label.textContent = e.label;
+      svg.appendChild(label);
+    });
+  }
+
+  function selectNode(id) {
+    Object.values(nodeEls).forEach(el => el.classList.remove("selected"));
+    nodeEls[id].classList.add("selected");
+    const n = nodes.find(x => x.id === id);
+    inspector.classList.toggle("is-draft", n.draft);
+    inspector.innerHTML =
+      '<span class="' + (n.draft ? 'draft-pill' : 'verified-pill') + '">' + (n.draft ? "ЧЕРНОВИК МОДА" : "ПОДТВЕРЖДЕНО В РЕДАКТОРЕ") + '</span>' +
+      '<div class="insp-type">' + n.type + '</div>' +
+      '<h3>' + n.title + '</h3>' +
+      '<p class="insp-desc">' + n.desc + '</p>' +
+      '<pre>' + JSON.stringify(n.data, null, 2) + '</pre>';
+  }
+
+  window.addEventListener("resize", drawEdges);
+  drawEdges();
+  selectNode("bag_flush");
+})();
+</script>
