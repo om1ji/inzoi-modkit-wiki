@@ -44,8 +44,9 @@ Male, Female, CareerMember, CareerOperating, Invalid
 
 Ключевая находка — эксклюзивное право на объект реализовано через **бафф**, а не через поле объекта:
 
+*Источник: `Condition_Interaction.Has_Exclusive_Npc_Object_Right` · MCP `modkit_get_row`.*
+
 ```json
-// Condition_Interaction.Has_Exclusive_Npc_Object_Right
 {
   "AndConditionsList": [{
     "Conditions": [{
@@ -87,6 +88,8 @@ Male, Female, CareerMember, CareerOperating, Invalid
 
 **1. Condition_Interaction → `PCRole_Change_Enable`**
 
+*Черновик (предложение), не из игровых данных. Целевой путь: `Condition_Interaction.PCRole_Change_Enable`.*
+
 ```json
 {
   "Id": "PCRole_Change_Enable",
@@ -101,6 +104,8 @@ Male, Female, CareerMember, CareerOperating, Invalid
 
 **2. Interaction_Computer → `PCRole_Change`**
 
+*Черновик (предложение), не из игровых данных. Целевой путь: `Interaction_Computer.PCRole_Change`.*
+
 ```json
 {
   "Id": "PCRole_Change",
@@ -113,6 +118,8 @@ Male, Female, CareerMember, CareerOperating, Invalid
 
 **3. Action_Interaction_Computer → `PCRole_Change`**
 
+*Черновик (предложение), не из игровых данных. Целевой путь: `Action_Interaction_Computer.PCRole_Change`.*
+
 ```json
 {
   "Id": "PCRole_Change",
@@ -124,6 +131,8 @@ Male, Female, CareerMember, CareerOperating, Invalid
 ```
 
 **4. InteractionBag_Computer → `PCRole_Change`**
+
+*Черновик (предложение), не из игровых данных. Целевой путь: `InteractionBag_Computer.PCRole_Change`.*
 
 ```json
 {
