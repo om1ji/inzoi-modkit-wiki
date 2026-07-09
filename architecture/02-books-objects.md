@@ -23,9 +23,7 @@ modkit_list_categories(book_class) → modkit_list_books(book_class, category)
 
 ## Пример: Computer01
 
-*Источник: `Object.Computer01` · MCP `modkit_get_row` (поля сокращены).*
-
-```json
+```{jsonblock} Object.Computer01 · MCP modkit_get_row (поля сокращены)
 {
   "Id": "Computer01",
   "ObjectTemplateId": "Computer01_Template",
@@ -36,9 +34,7 @@ modkit_list_categories(book_class) → modkit_list_books(book_class, category)
 }
 ```
 
-*Источник: `ObjectTemplate.Computer01_Template` · MCP `modkit_get_row` (поля сокращены).*
-
-```json
+```{jsonblock} ObjectTemplate.Computer01_Template · MCP modkit_get_row (поля сокращены)
 {
   "Id": "Computer01_Template",
   "ObjectSelectionSetId": "Computer01",

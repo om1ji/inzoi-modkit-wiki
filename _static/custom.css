@@ -1,0 +1,49 @@
+/* Компонент jsonblock — JSON с моноширинным заголовком-источником в одной рамке.
+   Директива определена в _ext/jsonblock.py. */
+
+.json-block {
+  margin: 1rem 0;
+  border: 1px solid var(--color-background-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.json-block-source {
+  margin: 0;
+  padding: 6px 12px;
+  font-family: var(--font-stack--monospace);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--color-foreground-muted);
+  background: var(--color-background-secondary);
+  border-bottom: 1px solid var(--color-background-border);
+  word-break: break-word;
+}
+
+.json-block-source::before {
+  content: "\25C8  \0438\0441\0442\043E\0447\043D\0438\043A \00B7 ";  /* ◈ источник · */
+  opacity: 0.65;
+}
+
+/* Черновик / предложение (адрес — целевой путь, а не источник) */
+.json-block.is-draft {
+  border-color: #c98a3c;
+}
+.json-block.is-draft .json-block-source {
+  color: #b9772c;
+  background: rgba(201, 138, 60, 0.10);
+  border-bottom-color: #c98a3c;
+}
+.json-block.is-draft .json-block-source::before {
+  content: "\25C8  \0447\0435\0440\043D\043E\0432\0438\043A \00B7 \0446\0435\043B\0435\0432\043E\0439 \043F\0443\0442\044C \00B7 ";  /* ◈ черновик · целевой путь · */
+}
+
+/* Код внутри рамки — заподлицо, без собственных отступов/скруглений */
+.json-block [class*="highlight"] {
+  margin: 0;
+  border-radius: 0;
+}
+.json-block .highlight pre {
+  border: 0;
+  border-radius: 0;
+}
