@@ -120,7 +120,7 @@ ID. Вся начинка действия (награда, анимация, э
 Сама строка условия — это маленькая логическая проверка. Вот реальный `Self_Uneasy_Lv2`, из-за
 которого «срочные» варианты использования прячутся, пока нужда не станет острой:
 
-```{jsonblock} Condition_Interaction.Self_Uneasy_Lv2 · MCP modkit_get_row
+```{jsonblock} Condition_Interaction.Self_Uneasy_Lv2
 {
   "Id": "Self_Uneasy_Lv2",
   "AndConditionsList": [{ "Conditions": [

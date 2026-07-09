@@ -80,7 +80,7 @@ Or-группа)`.
 
 **Чистое И (одна группа, две проверки).** `Check_MF` — «Self мужчина И Target женщина»:
 
-```{jsonblock} Condition_Interaction.Check_MF.AndConditionsList · MCP modkit_get_row (фрагмент строки)
+```{jsonblock} Condition_Interaction.Check_MF.AndConditionsList (фрагмент строки)
 "AndConditionsList": [{ "Conditions": [
   { "BaseObject": "Self",   "Command": "Gender", "CompareType": "Equal", "S1": "Male" },
   { "BaseObject": "Target", "Command": "Gender", "CompareType": "Equal", "S1": "Female" }

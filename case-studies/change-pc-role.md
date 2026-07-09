@@ -44,7 +44,7 @@ Male, Female, CareerMember, CareerOperating, Invalid
 
 Ключевая находка — эксклюзивное право на объект реализовано через **бафф**, а не через поле объекта:
 
-```{jsonblock} Condition_Interaction.Has_Exclusive_Npc_Object_Right · MCP modkit_get_row
+```{jsonblock} Condition_Interaction.Has_Exclusive_Npc_Object_Right
 {
   "AndConditionsList": [{
     "Conditions": [{
